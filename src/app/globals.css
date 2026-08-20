@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+:root {
+  --color-bg: #f5f3ec;
+  --color-surface: #ffffff;
+  --color-surface-alt: #faf8f2;
+  --color-ink: #1e2a22;
+  --color-ink-muted: #616e64;
+  --color-border: #e3ddcd;
+  --color-accent: #b9711a;
+  --color-accent-strong: #96590f;
+  --color-accent-soft: #f3e0bd;
+  --color-moss: #45624a;
+  --color-moss-soft: #dde8dc;
+  --color-rust: #a8412a;
+  --color-rust-soft: #f2ddd6;
+  --font-display: var(--font-space-grotesk);
+  --font-body: var(--font-inter);
+  --font-mono: var(--font-plex-mono);
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display), system-ui, sans-serif;
+}
+
+.font-mono {
+  font-family: var(--font-mono), monospace;
+}
+
+/* Signature: stock-tag shape used for badges & section markers.
+   A little punch-hole notch on the left, like a warehouse price tag. */
+.tag-shape {
+  position: relative;
+  clip-path: polygon(14px 0, 100% 0, 100% 100%, 14px 100%, 0 50%);
+  padding-left: 22px;
+}
+
+.tag-shape::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+::selection {
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
