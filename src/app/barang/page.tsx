@@ -22,6 +22,21 @@ const emptyForm = {
 const rupiah = (n: number) =>
   new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(n);
 
+// Cari nomor urut terbesar dari kode yang sudah ada (format BRG-0001),
+// lalu kembalikan kode berikutnya supaya tidak ada duplikat.
+function generateKodeBarang(list: Barang[]) {
+  let maxNumber = 0;
+  for (const b of list) {
+    const match = b.kode_barang.match(/^BRG-(\d+)$/i);
+    if (match) {
+      const n = parseInt(match[1], 10);
+      if (n > maxNumber) maxNumber = n;
+    }
+  }
+  const next = maxNumber + 1;
+  return `BRG-${String(next).padStart(4, "0")}`;
+}
+
 export default function BarangPage() {
   const [items, setItems] = useState<Barang[]>([]);
   const [kategoriList, setKategoriList] = useState<Kategori[]>([]);
@@ -64,7 +79,7 @@ export default function BarangPage() {
   }, []);
 
   function openCreate() {
-    setForm(emptyForm);
+    setForm({ ...emptyForm, kode_barang: generateKodeBarang(items) });
     setModalOpen(true);
   }
 
@@ -102,7 +117,11 @@ export default function BarangPage() {
       : await supabase.from("barang").insert(payload);
     setSaving(false);
     if (error) {
-      setError(error.message);
+      if (error.code === "23505") {
+        setError(`Kode barang "${payload.kode_barang}" sudah dipakai. Silakan gunakan kode lain.`);
+      } else {
+        setError(error.message);
+      }
       return;
     }
     setModalOpen(false);
@@ -250,13 +269,18 @@ export default function BarangPage() {
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={form.id ? "Ubah Barang" : "Tambah Barang"}>
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Kode Barang" required>
+            <Field
+              label="Kode Barang"
+              required
+              hint={!form.id ? "Terisi otomatis, tidak bisa duplikat" : undefined}
+            >
               <Input
-                autoFocus
+                autoFocus={!!form.id}
                 value={form.kode_barang}
+                readOnly={!form.id}
                 onChange={(e) => setForm({ ...form, kode_barang: e.target.value })}
                 placeholder="BRG-0001"
-                className="font-mono"
+                className={`font-mono ${!form.id ? "opacity-70 cursor-not-allowed" : ""}`}
               />
             </Field>
             <Field label="Stok">
